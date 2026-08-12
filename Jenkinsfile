@@ -40,7 +40,7 @@ pipeline {
                     adapters: [
                         tomcat9(
                             alternativeDeploymentContext: '',
-                            credentialsId: 'github',
+                            credentialsId: 'tomcat-credentials',
                             path: '',
                             url: 'http://13.201.48.63:8080/'
                         )
@@ -54,17 +54,12 @@ pipeline {
 
     post {
         success {
-            echo '======================================'
             echo 'BUILD AND DEPLOYMENT SUCCESSFUL!'
             echo 'Application: http://13.201.48.63:8080/netflix'
-            echo '======================================'
         }
 
         failure {
-            echo '======================================'
             echo 'BUILD OR DEPLOYMENT FAILED!'
-            echo 'Check the Console Output for details.'
-            echo '======================================'
         }
     }
 }
