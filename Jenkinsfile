@@ -7,16 +7,18 @@ pipeline {
 
     stages {
 
-        stage('code') {
+        stage('Code Checkout') {
             steps {
-                git branch: 'main',
+                git(
+                    branch: 'main',
                     url: 'https://github.com/sachinshivde/java-project-sachin.git'
+                )
             }
         }
 
         stage('Build') {
             steps {
-                sh 'mvn compile'
+                sh 'mvn clean compile'
             }
         }
 
@@ -26,25 +28,43 @@ pipeline {
             }
         }
 
-        stage('Artifacts') {
+        stage('Package') {
             steps {
                 sh 'mvn package'
             }
         }
 
-        stage('tomcat') {
+        stage('Deploy to Tomcat') {
             steps {
-                deploy adapters: [
-                    tomcat9(
-                        alternativeDeploymentContext: '',
-                        credentialsId: 'github',
-                        path: '',
-                        url: 'http://13.201.48.63:8080/'
-                    )
-                ],
-                contextPath: 'netflix',
-                war: 'target/*'
+                deploy(
+                    adapters: [
+                        tomcat9(
+                            alternativeDeploymentContext: '',
+                            credentialsId: 'github',
+                            path: '',
+                            url: 'http://13.201.48.63:8080/'
+                        )
+                    ],
+                    contextPath: 'netflix',
+                    war: 'target/*.war'
+                )
             }
+        }
+    }
+
+    post {
+        success {
+            echo '======================================'
+            echo 'BUILD AND DEPLOYMENT SUCCESSFUL!'
+            echo 'Application: http://13.201.48.63:8080/netflix'
+            echo '======================================'
+        }
+
+        failure {
+            echo '======================================'
+            echo 'BUILD OR DEPLOYMENT FAILED!'
+            echo 'Check the Console Output for details.'
+            echo '======================================'
         }
     }
 }
