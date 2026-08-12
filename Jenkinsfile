@@ -36,18 +36,19 @@ pipeline {
 
         stage('Deploy to Tomcat') {
             steps {
-                deploy(
-                    adapters: [
-                        tomcat9(
-                            alternativeDeploymentContext: '',
-                            credentialsId: 'tomcat-credentials',
-                            path: '',
-                            url: 'http://13.201.48.63:8080/'
-                        )
-                    ],
-                    contextPath: 'netflix',
-                    war: 'target/*.war'
-                )
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'tomcat-credentials',
+                        usernameVariable: 'TOMCAT_USER',
+                        passwordVariable: 'TOMCAT_PASS'
+                    )
+                ]) {
+                    sh '''
+                        curl --fail --upload-file target/*.war \
+                        -u "$TOMCAT_USER:$TOMCAT_PASS" \
+                        "http://13.201.48.63:8080/manager/text/deploy?path=/netflix&update=true"
+                    '''
+                }
             }
         }
     }
